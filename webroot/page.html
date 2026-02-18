@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="styles.css">
+  <title>Snap Judge</title>
+</head>
+<body>
+  <!-- Game canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Mute button (REQUIRED for Devvit approval) -->
+  <button id="muteBtn" class="mute-btn" aria-label="Toggle sound">
+    <span class="mute-icon">&#x1F50A;</span>
+  </button>
+
+  <!-- Game Over overlay (hidden by default) -->
+  <div id="gameOverOverlay" class="overlay hidden">
+    <div class="overlay-content">
+      <h1 id="gameOverTitle" class="overlay-title">GAME OVER</h1>
+
+      <div id="gameOverStats" class="stats-grid">
+        <!-- Populated dynamically:
+          <div class="stat-item">
+            <span class="stat-label">SCORE</span>
+            <span class="stat-value">1250</span>
+          </div>
+        -->
+      </div>
+
+      <div id="scoreResult" class="score-result">
+        <!-- e.g. "NEW PERSONAL BEST!" or "Score saved!" -->
+      </div>
+
+      <div class="overlay-buttons">
+        <button id="playAgainBtn" class="btn btn-primary">PLAY AGAIN</button>
+        <button id="menuBtn" class="btn btn-secondary">MENU</button>
+        <button id="shareBtn" class="btn btn-share hidden">SHARE SCORE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard overlay (hidden by default) -->
+  <div id="leaderboardOverlay" class="overlay hidden">
+    <div class="overlay-content lb-content">
+      <h1 class="overlay-title">LEADERBOARD</h1>
+
+      <!-- Game mode tabs -->
+      <div class="lb-tabs">
+        <button class="lb-tab active" data-mode="sp">STREET PATROL</button>
+        <button class="lb-tab" data-mode="qd">QUICK DRAW</button>
+        <button class="lb-tab" data-mode="mw">MOST WANTED</button>
+      </div>
+
+      <!-- Time period tabs -->
+      <div class="lb-time-tabs">
+        <button class="lb-time-tab active" data-period="alltime">ALL TIME</button>
+        <button class="lb-time-tab" data-period="weekly">WEEKLY</button>
+        <button class="lb-time-tab" data-period="daily">DAILY</button>
+      </div>
+
+      <!-- Leaderboard entries -->
+      <div id="lbList" class="lb-list">
+        <!-- Populated dynamically:
+          <div class="lb-entry">
+            <span class="lb-rank">1</span>
+            <span class="lb-name">username</span>
+            <span class="lb-score">9999</span>
+          </div>
+        -->
+      </div>
+
+      <!-- Player's own rank (always visible at bottom) -->
+      <div id="lbPlayerRank" class="lb-player-rank">
+        <!-- e.g. "Your rank: #42 — 3,200 pts" -->
+      </div>
+
+      <button id="lbCloseBtn" class="btn btn-secondary lb-close-btn">CLOSE</button>
+    </div>
+  </div>
+
+  <!-- Login prompt (for anonymous users) -->
+  <div id="loginPrompt" class="login-prompt hidden">
+    Log in to save your score!
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

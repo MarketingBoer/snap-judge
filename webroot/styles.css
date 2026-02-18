@@ -1,0 +1,637 @@
+/* ==========================================================================
+   Snap Judge — Urban Noir Theme
+   Colors:
+     Background:  #0A1628  (dark navy)
+     Surface:     #1A2A44  (lighter navy)
+     Text:        #E8E8E8
+     Accent Red:  #FF3333  (criminals / danger)
+     Accent Green:#33FF33  (civilians / safe)
+     Gold:        #FFD700  (scores / highlights)
+     Neon Blue:   #4488FF  (buttons / UI accents)
+   ========================================================================== */
+
+/* --- Reset & Base -------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0A1628;
+  color: #E8E8E8;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Canvas -------------------------------------------------------------- */
+#gameCanvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  touch-action: none;
+  cursor: crosshair;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* --- Mute Button --------------------------------------------------------- */
+.mute-btn {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 1000;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgba(10, 22, 40, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #E8E8E8;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+  padding: 0;
+}
+
+.mute-btn:hover {
+  border-color: #FFD700;
+  background: rgba(26, 42, 68, 0.8);
+}
+
+.mute-btn:active {
+  transform: scale(0.9);
+}
+
+.mute-icon {
+  pointer-events: none;
+}
+
+/* --- Overlays (shared) --------------------------------------------------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.overlay-content {
+  width: 90%;
+  max-width: 400px;
+  padding: 28px 24px;
+  background: #1A2A44;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  box-shadow:
+    0 0 40px rgba(68, 136, 255, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  animation: contentSlideUp 0.35s ease-out;
+}
+
+@keyframes contentSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.overlay-title {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #FFD700;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+}
+
+/* --- Stats Grid (Game Over) --------------------------------------------- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 8px;
+  background: rgba(10, 22, 40, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(68, 136, 255, 0.2);
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: rgba(232, 232, 232, 0.5);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 900;
+  color: #E8E8E8;
+}
+
+.stat-value.gold {
+  color: #FFD700;
+}
+
+.stat-value.red {
+  color: #FF3333;
+}
+
+.stat-value.green {
+  color: #33FF33;
+}
+
+/* --- Score Result -------------------------------------------------------- */
+.score-result {
+  min-height: 24px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.score-result.new-record {
+  color: #FFD700;
+  animation: pulseGlow 1.5s ease-in-out infinite;
+}
+
+.score-result.saved {
+  color: #33FF33;
+}
+
+.score-result.not-saved {
+  color: rgba(232, 232, 232, 0.4);
+}
+
+@keyframes pulseGlow {
+  0%, 100% { text-shadow: 0 0 8px rgba(255, 215, 0, 0.4); }
+  50%      { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+}
+
+/* --- Buttons ------------------------------------------------------------- */
+.overlay-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s, background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #0A1628;
+  box-shadow: 0 4px 16px rgba(255, 215, 0, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 24px rgba(255, 215, 0, 0.5);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #E8E8E8;
+  border: 2px solid rgba(232, 232, 232, 0.3);
+}
+
+.btn-secondary:hover {
+  border-color: rgba(232, 232, 232, 0.6);
+  background: rgba(232, 232, 232, 0.05);
+}
+
+.btn-share {
+  background: linear-gradient(135deg, #33FF33, #22CC22);
+  color: #0A1628;
+  box-shadow: 0 4px 16px rgba(51, 255, 51, 0.3);
+}
+
+.btn-share:hover {
+  box-shadow: 0 4px 24px rgba(51, 255, 51, 0.5);
+}
+
+.btn-share.hidden {
+  display: none;
+}
+
+/* --- Leaderboard Overlay ------------------------------------------------- */
+.lb-content {
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+/* Game mode tabs */
+.lb-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.lb-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.lb-tab {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 6px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: rgba(232, 232, 232, 0.4);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.lb-tab:hover {
+  color: rgba(232, 232, 232, 0.7);
+}
+
+.lb-tab.active {
+  color: #FFD700;
+  border-bottom-color: #FFD700;
+}
+
+/* Time period tabs */
+.lb-time-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: rgba(10, 22, 40, 0.5);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.lb-time-tab {
+  flex: 1;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: rgba(232, 232, 232, 0.4);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+
+.lb-time-tab:hover {
+  color: rgba(232, 232, 232, 0.7);
+}
+
+.lb-time-tab.active {
+  color: #E8E8E8;
+  background: rgba(68, 136, 255, 0.25);
+}
+
+/* Leaderboard list */
+.lb-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(68, 136, 255, 0.3) transparent;
+}
+
+.lb-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lb-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lb-list::-webkit-scrollbar-thumb {
+  background: rgba(68, 136, 255, 0.3);
+  border-radius: 2px;
+}
+
+.lb-entry {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  background: rgba(10, 22, 40, 0.4);
+  transition: background 0.15s;
+}
+
+.lb-entry:hover {
+  background: rgba(10, 22, 40, 0.7);
+}
+
+.lb-entry.me {
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.lb-rank {
+  width: 32px;
+  font-size: 14px;
+  font-weight: 900;
+  color: rgba(232, 232, 232, 0.5);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.lb-entry:nth-child(1) .lb-rank {
+  color: #FFD700;
+  font-size: 16px;
+}
+
+.lb-entry:nth-child(2) .lb-rank {
+  color: #C0C0C0;
+}
+
+.lb-entry:nth-child(3) .lb-rank {
+  color: #CD7F32;
+}
+
+.lb-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #E8E8E8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  padding: 0 8px;
+}
+
+.lb-entry.me .lb-name {
+  color: #FFD700;
+}
+
+.lb-score {
+  font-size: 14px;
+  font-weight: 900;
+  color: #4488FF;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-entry.me .lb-score {
+  color: #FFD700;
+}
+
+/* Empty state */
+.lb-empty {
+  padding: 40px 16px;
+  color: rgba(232, 232, 232, 0.3);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Loading state */
+.lb-loading {
+  padding: 40px 16px;
+  color: rgba(232, 232, 232, 0.4);
+  font-size: 14px;
+}
+
+.lb-loading::after {
+  content: '';
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(68, 136, 255, 0.3);
+  border-top-color: #4488FF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Player rank bar */
+.lb-player-rank {
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  background: rgba(10, 22, 40, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(68, 136, 255, 0.2);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(232, 232, 232, 0.6);
+  min-height: 20px;
+}
+
+.lb-player-rank:empty {
+  display: none;
+}
+
+.lb-player-rank .rank-highlight {
+  color: #FFD700;
+  font-weight: 900;
+}
+
+.lb-close-btn {
+  margin-top: 4px;
+}
+
+/* --- Login Prompt -------------------------------------------------------- */
+.login-prompt {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  padding: 10px 20px;
+  background: rgba(26, 42, 68, 0.95);
+  border: 1px solid rgba(255, 215, 0, 0.4);
+  border-radius: 8px;
+  color: #FFD700;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: loginPromptIn 0.4s ease-out;
+  pointer-events: none;
+}
+
+.login-prompt.hidden {
+  display: none;
+}
+
+.login-prompt.fade-out {
+  animation: loginPromptOut 0.4s ease-in forwards;
+}
+
+@keyframes loginPromptIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes loginPromptOut {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+}
+
+/* --- Hidden Utility ------------------------------------------------------ */
+.hidden {
+  display: none !important;
+}
+
+/* --- Responsive ---------------------------------------------------------- */
+@media (max-width: 420px) {
+  .overlay-content {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+
+  .overlay-title {
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+  }
+
+  .btn {
+    padding: 12px 20px;
+    font-size: 13px;
+  }
+
+  .lb-tab {
+    font-size: 10px;
+    padding: 6px 4px;
+  }
+
+  .lb-time-tab {
+    font-size: 10px;
+    padding: 5px 6px;
+  }
+
+  .lb-entry {
+    padding: 8px 10px;
+  }
+
+  .lb-name,
+  .lb-score {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 340px) {
+  .overlay-content {
+    padding: 16px 12px;
+    width: 95%;
+  }
+
+  .overlay-title {
+    font-size: 18px;
+  }
+
+  .stats-grid {
+    gap: 8px;
+  }
+
+  .stat-value {
+    font-size: 16px;
+  }
+
+  .lb-list {
+    max-height: 220px;
+  }
+}
+
+/* High-DPI adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .mute-btn {
+    border-width: 1.5px;
+  }
+}
