@@ -1,0 +1,15 @@
+{
+  "name": "snap-judge",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "license": "BSD-3-Clause",
+  "main": "src/main.tsx",
+  "devDependencies": {
+    "@devvit/public-api": "^0.12.13",
+    "typescript": "^5.9.3"
+  },
+  "devvit": {
+    "webroot": "./webroot"
+  }
+}
